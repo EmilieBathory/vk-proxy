@@ -4,7 +4,12 @@ import fetch from 'node-fetch';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Главный маршрут для постов
+// Тестовый маршрут для проверки сервера
+app.get('/', (req, res) => {
+  res.send('Server is running!');
+});
+
+// Главный маршрут для получения постов
 app.get('/api/posts', async (req, res) => {
   try {
     const { id, count = 5, access_token } = req.query;
