@@ -4,12 +4,12 @@ import fetch from 'node-fetch';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Тестовый маршрут, чтобы проверить сервер
+// Тестовый маршрут для проверки сервера
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 
-// Основной маршрут для получения постов ВК
+// Основной маршрут для постов
 app.get('/api/posts', async (req, res) => {
   try {
     const { id, count = 5, access_token } = req.query;
@@ -19,7 +19,6 @@ app.get('/api/posts', async (req, res) => {
     }
 
     const vkUrl = `https://api.vk.com/method/wall.get?owner_id=${id}&count=${count}&access_token=${access_token}&v=5.131`;
-
     const response = await fetch(vkUrl);
     const data = await response.json();
 
@@ -27,7 +26,6 @@ app.get('/api/posts', async (req, res) => {
       return res.status(400).json({ error: data.error });
     }
 
-    // Отправляем только массив постов
     res.json({ posts: data.response.items });
   } catch (err) {
     console.error(err);
