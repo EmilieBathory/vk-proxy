@@ -2,14 +2,14 @@ import express from 'express';
 import fetch from 'node-fetch';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 // Тестовый маршрут для проверки сервера
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 
-// Основной маршрут для постов
+// Основной маршрут для получения постов ВК
 app.get('/api/posts', async (req, res) => {
   try {
     const { id, count = 5, access_token } = req.query;
