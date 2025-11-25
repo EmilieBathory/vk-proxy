@@ -3,13 +3,11 @@ import fetch from 'node-fetch';
 import cors from 'cors';
 
 const app = express();
-app.use(cors()); // Разрешаем все домены
+app.use(cors());  // разрешаем запросы с любых доменов
 
 const PORT = process.env.PORT || 10000;
 
-app.get('/', (req, res) => {
-  res.send('Server is running!');
-});
+app.get('/', (req, res) => res.send('Server is running!'));
 
 app.get('/api/posts', async (req, res) => {
   const { id, count = 5, access_token } = req.query;
@@ -20,7 +18,6 @@ app.get('/api/posts', async (req, res) => {
     const vkResponse = await fetch(vkUrl);
     const data = await vkResponse.json();
     if (data.error) return res.status(400).json({ error: data.error });
-
     res.json({ posts: data.response.items });
   } catch (err) {
     console.error(err);
@@ -28,6 +25,4 @@ app.get('/api/posts', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
