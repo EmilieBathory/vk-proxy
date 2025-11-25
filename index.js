@@ -1,42 +1,39 @@
-import express from 'express';
-import fetch from 'node-fetch';
-import cors from 'cors';
+const express = require("express");
+const fetch = require("node-fetch");
 
 const app = express();
-
-// Включаем CORS для всех доменов (Tilda и другие)
-app.use(cors());
-
 const PORT = process.env.PORT || 10000;
 
-app.get('/', (req, res) => {
-  res.send('VK Proxy Server is running!');
-});
-
-// Основной маршрут для получения постов
-app.get('/api/posts', async (req, res) => {
-  const { id, count = 5, access_token } = req.query;
-
-  if (!id || !access_token) {
-    return res.status(400).json({ error: "Укажите id и access_token" });
+app.get("/api/posts", async (req, res) => {
+  const { id, count, access_token } = req.query;
+  if (!id || !count || !access_token) {
+    return res.status(400).json({ error: "Missing parameters" });
   }
 
   try {
     const vkUrl = `https://api.vk.com/method/wall.get?owner_id=${id}&count=${count}&access_token=${access_token}&v=5.131`;
     const vkRes = await fetch(vkUrl);
-    const data = await vkRes.json();
+    const vkData = await vkRes.json();
 
-    if (data.error) {
-      return res.status(400).json({ error: data.error });
-    }
+    const posts = (vkData.response.items || []).map(post => {
+      // Если текста нет, собираем его из attachments
+      let text = post.text || "";
+      if (!text && post.attachments) {
+        post.attachments.forEach(att => {
+          if (att.video) text += (text ? "\n\n" : "") + att.video.title;
+          if (att.photo) text += (text ? "\n\n" : "") + "Фото";
+        });
+      }
+      return { ...post, text };
+    });
 
-    res.json({ posts: data.response.items });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Ошибка сервера" });
+    res.json({ posts });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "VK API error" });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
