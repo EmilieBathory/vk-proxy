@@ -16,14 +16,15 @@ app.get("/api/posts", async (req, res) => {
     const vkData = await vkRes.json();
 
     const posts = (vkData.response.items || []).map(post => {
-      // Если текста нет, собираем его из attachments
       let text = post.text || "";
+
       if (!text && post.attachments) {
         post.attachments.forEach(att => {
           if (att.video) text += (text ? "\n\n" : "") + att.video.title;
           if (att.photo) text += (text ? "\n\n" : "") + "Фото";
         });
       }
+
       return { ...post, text };
     });
 
